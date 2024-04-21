@@ -40,5 +40,6 @@ def speech_to_text(data, iam_token, folder_id):
         logging.info('success stt')
         return decoded_data.get("result")
     else:
-        logging.error(f"При запросе в SpeechKit возникла ошибка {decoded_data.get("error_code")}")
+        error = decoded_data.get("error_code")
+        logging.error(f"При запросе в SpeechKit возникла ошибка {error}")
         return False

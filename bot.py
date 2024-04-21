@@ -83,8 +83,7 @@ def stt(message, expires_at=expires_at, iam_token=iam_token):
         logging.warning(f'Неверный тип данных {user_id}')
         bot.register_next_step_handler(message, stt)
         return
-    voice = message.voice
-    tts_blocks = math.ceil(message.duration / 15)
+    tts_blocks = math.ceil(message.voice.duration / 15)
     if tts_blocks > MAX_MESSAGE_BLOCKS:
         bot.send_message(chat_id=chat_id,
                          text='Превышена длина сообщения. Сократите его и отправьте его снова!')
@@ -96,7 +95,10 @@ def stt(message, expires_at=expires_at, iam_token=iam_token):
         expires_at = time.time() + token_data['expires_in']
         iam_token = token_data['access_token']
         logging.info("смена iam_token")
-    tts_answer = speech_to_text(data=voice, iam_token=iam_token, folder_id=folder_id)
+    file_id = message.voice.file_id
+    file_info = bot.get_file(file_id)
+    file = bot.download_file(file_info.file_path)
+    tts_answer = speech_to_text(data=file, iam_token=iam_token, folder_id=folder_id)
     if tts_answer:
         insert_row((user_id, tts_answer, tts_blocks))
         bot.send_message(chat_id=chat_id, text=tts_answer)
